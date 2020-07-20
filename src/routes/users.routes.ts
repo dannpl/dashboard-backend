@@ -1,33 +1,23 @@
 import { Router } from 'express';
-import { uuid } from 'uuidv4';
+
+import UsersRepository from '../repositories/UsersRepository';
 
 const usersRoutes = Router();
-const users: any = [];
+const usersRepository = new UsersRepository();
+let userIndex: any = 0;
 
-function setUser(id: any, name: string, participation: number) {
-  const user = {
-    id: id || uuid(),
-    name,
-    participation,
-  };
-
-  return user;
+function error(code: number, message: string, response: any) {
+  return response.status(code).json({ message });
 }
 
 function validateUserId(request: any, response: any, next: any) {
   const { id } = request.params;
 
-  const userIndex = users.findIndex((user: any) => user.id === id);
+  userIndex = usersRepository.findById(id);
 
-  if (userIndex < 0)
-    return response.status(400).json({ message: 'User not found.' });
+  if (userIndex < 0) return error(400, 'User not found.', response);
 
-  request.params.userIndex = userIndex;
   return next();
-}
-
-function error(code: number, message: string, response: any) {
-  return response.status(code).json({ message });
 }
 
 function validateUserBody(request: any, response: any, next: () => any) {
@@ -45,14 +35,15 @@ function validateUserBody(request: any, response: any, next: () => any) {
   return next();
 }
 
-usersRoutes.get('/', (request, response) => response.json(users));
+usersRoutes.get('/', (request, response) => {
+  response.json(usersRepository.all());
+});
 
 usersRoutes.post('/', validateUserBody, (request, response) => {
   const { name, participation } = request.body;
 
-  const user = setUser(null, name, participation);
+  const user = usersRepository.create({ name, participation });
 
-  users.push(user);
   response.json(user);
 });
 
@@ -61,21 +52,17 @@ usersRoutes.put(
   validateUserId,
   validateUserBody,
   (request, response) => {
-    const { userIndex, id } = request.params;
+    const { id } = request.params;
     const { name, participation } = request.body;
 
-    const user = setUser(id, name, participation);
-
-    users[userIndex] = user;
+    const user = usersRepository.update({ id, name, participation, userIndex });
 
     return response.send(user);
   },
 );
 
 usersRoutes.delete('/:id', validateUserId, (request, response) => {
-  const { userIndex } = request.params;
-
-  users.splice(userIndex, 1);
+  usersRepository.delete(userIndex);
 
   return response.status(204).send();
 });
