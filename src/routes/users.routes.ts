@@ -4,9 +4,9 @@ import { uuid } from 'uuidv4';
 const usersRoutes = Router();
 const users: any = [];
 
-function setUser(name: string, participation: number) {
+function setUser(id: any, name: string, participation: number) {
   const user = {
-    id: uuid(),
+    id: id || uuid(),
     name,
     participation,
   };
@@ -22,7 +22,7 @@ function validateUserId(request: any, response: any, next: any) {
   if (userIndex < 0)
     return response.status(400).json({ message: 'User not found.' });
 
-  request.userIndex = userIndex;
+  request.params.userIndex = userIndex;
   return next();
 }
 
@@ -45,31 +45,34 @@ function validateUserBody(request: any, response: any, next: () => any) {
   return next();
 }
 
-usersRoutes.use('/:id', validateUserId, validateUserBody);
-
 usersRoutes.get('/', (request, response) => response.json(users));
 
-usersRoutes.post('/', (request, response) => {
+usersRoutes.post('/', validateUserBody, (request, response) => {
   const { name, participation } = request.body;
 
-  const user = setUser(name, participation);
+  const user = setUser(null, name, participation);
 
   users.push(user);
   response.json(user);
 });
 
-usersRoutes.put('/:id', (request, response) => {
-  const { userIndex } = request.params;
-  const { name, participation } = request.body;
+usersRoutes.put(
+  '/:id',
+  validateUserId,
+  validateUserBody,
+  (request, response) => {
+    const { userIndex, id } = request.params;
+    const { name, participation } = request.body;
 
-  const user = setUser(name, participation);
+    const user = setUser(id, name, participation);
 
-  users[userIndex] = user;
+    users[userIndex] = user;
 
-  return response.send(user);
-});
+    return response.send(user);
+  },
+);
 
-usersRoutes.delete('/:id', (request, response) => {
+usersRoutes.delete('/:id', validateUserId, (request, response) => {
   const { userIndex } = request.params;
 
   users.splice(userIndex, 1);
