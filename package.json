@@ -4,7 +4,6 @@
   "description": "",
   "scripts": {
     "dev:server": "ts-node-dev src/server.ts",
-    "start": "node dist/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
