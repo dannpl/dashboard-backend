@@ -29,8 +29,7 @@ function validateUserBody(request: any, response: any, next: () => any) {
 
   if (!name.last) return error(400, 'Last name field is required!', response);
 
-  if (isNaN(participation))
-    return error(400, 'Participation field is required!', response);
+  if (typeof participation !== 'number') return error(400, 'Participation field is required!', response);
 
   return next();
 }
@@ -47,19 +46,14 @@ usersRoutes.post('/', validateUserBody, (request, response) => {
   response.json(user);
 });
 
-usersRoutes.put(
-  '/:id',
-  validateUserId,
-  validateUserBody,
-  (request, response) => {
-    const { id } = request.params;
-    const { name, participation } = request.body;
+usersRoutes.put('/:id', validateUserId, validateUserBody, (request, response) => {
+  const { id } = request.params;
+  const { name, participation } = request.body;
 
-    const user = usersRepository.update({ id, name, participation, userIndex });
+  const user = usersRepository.update({ id, name, participation, userIndex });
 
-    return response.send(user);
-  },
-);
+  return response.send(user);
+});
 
 usersRoutes.delete('/:id', validateUserId, (request, response) => {
   usersRepository.delete(userIndex);

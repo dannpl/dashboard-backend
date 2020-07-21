@@ -4,13 +4,18 @@
   "description": "",
   "scripts": {
     "dev:server": "ts-node-dev src/server.ts",
+    "start": "npx tsc && node dist/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/cors": "^2.8.6",
+    "@types/mongoose": "^5.7.32",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
+    "mongoose": "^5.9.25",
     "tsc": "^1.20150623.0",
     "uuidv4": "^6.2.0"
   },
