@@ -15,4 +15,6 @@ mongoose_1.default.connect('mongodb+srv://dan:11223344@cluster0-qqmef.mongodb.ne
 app.use(cors_1.default());
 app.use(express_1.default.json());
 app.use(routes_1.default);
-app.listen(3333);
+app.listen(3333, function () {
+    console.log('run');
+});
